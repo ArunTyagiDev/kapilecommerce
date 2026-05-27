@@ -1,0 +1,8 @@
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/qxdmzlcus1wr/public_html/guhan.in/
+    - /bin/cp -R * $DEPLOYPATH
+    - cd $DEPLOYPATH
+    - composer install --no-dev
+    - php artisan migrate --force
+    - php artisan optimize
