@@ -1,8 +1,14 @@
+---
 deployment:
   tasks:
     - export DEPLOYPATH=/home/qxdmzlcus1wr/public_html/guhan.in/
-    - /bin/cp -R * $DEPLOYPATH
+    # Use "." not "*" so .htaccess and other dotfiles are copied
+    - /bin/cp -R . $DEPLOYPATH
     - cd $DEPLOYPATH
-    - composer install --no-dev
-    - php artisan migrate --force
-    - php artisan optimize
+    - composer install --no-dev --optimize-autoloader --no-interaction
+    - chmod -R 775 storage bootstrap/cache
+    - php artisan storage:link --force
+    - php artisan migrate --force --no-interaction
+    - php artisan config:cache --no-interaction
+    - php artisan route:cache --no-interaction
+    - php artisan view:cache --no-interaction
