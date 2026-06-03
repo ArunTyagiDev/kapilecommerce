@@ -33,13 +33,26 @@ class CartController extends Controller
 
     public function add(Request $request)
     {
-        $validated = $request->validate([
+        $product = Product::findOrFail($request->product_id);
+
+        $rules = [
             'product_id' => 'required|exists:products,id',
             'variant_id' => 'nullable|exists:product_variants,id',
             'quantity' => 'required|integer|min:1',
-        ]);
+        ];
 
-        $product = Product::findOrFail($validated['product_id']);
+        if ($product->is_customizable && $product->customization_type !== 'text_sticker') {
+            $rules['custom_photo'] = 'required|image|mimes:jpeg,jpg,png,webp|max:10240';
+        }
+
+        if ($product->customization_type === 'text_sticker') {
+            $rules['student_name'] = 'required|string|max:120';
+            $rules['student_class'] = 'required|string|max:80';
+            $rules['school_name'] = 'nullable|string|max:150';
+            $rules['contact_phone'] = 'nullable|string|max:20';
+        }
+
+        $validated = $request->validate($rules);
         
         // Determine price
         if ($validated['variant_id']) {
@@ -59,17 +72,43 @@ class CartController extends Controller
         $sessionId = session()->getId();
         $userId = Auth::id();
 
-        // Check if item already exists in cart
-        $cartItem = Cart::where('product_id', $validated['product_id'])
-            ->where('variant_id', $validated['variant_id'])
-            ->where(function($query) use ($sessionId, $userId) {
-                if ($userId) {
-                    $query->where('user_id', $userId);
-                } else {
-                    $query->where('session_id', $sessionId);
-                }
-            })
-            ->first();
+        $customImagePath = null;
+        $customizationData = null;
+
+        if ($product->is_customizable && $request->hasFile('custom_photo')) {
+            $customImagePath = $request->file('custom_photo')->store('custom-uploads', 'public');
+            $customizationData = [
+                'size_label' => $request->input('size_label'),
+                'thickness_label' => $request->input('thickness_label'),
+                'shape' => $product->shape_label,
+            ];
+        }
+
+        if ($product->customization_type === 'text_sticker') {
+            $customizationData = [
+                'type' => 'text_sticker',
+                'student_name' => $request->input('student_name'),
+                'student_class' => $request->input('student_class'),
+                'school_name' => $request->input('school_name'),
+                'contact_phone' => $request->input('contact_phone'),
+                'pack' => '30 pcs',
+            ];
+        }
+
+        // Custom uploads always get a new line; standard products merge by variant
+        $cartItem = null;
+        if (! $product->is_customizable) {
+            $cartItem = Cart::where('product_id', $validated['product_id'])
+                ->where('variant_id', $validated['variant_id'] ?? null)
+                ->where(function ($query) use ($sessionId, $userId) {
+                    if ($userId) {
+                        $query->where('user_id', $userId);
+                    } else {
+                        $query->where('session_id', $sessionId);
+                    }
+                })
+                ->first();
+        }
 
         if ($cartItem) {
             $cartItem->quantity += $validated['quantity'];
@@ -79,9 +118,11 @@ class CartController extends Controller
                 'session_id' => $userId ? null : $sessionId,
                 'user_id' => $userId,
                 'product_id' => $validated['product_id'],
-                'variant_id' => $validated['variant_id'],
+                'variant_id' => $validated['variant_id'] ?? null,
                 'quantity' => $validated['quantity'],
                 'price' => $price,
+                'custom_image_path' => $customImagePath,
+                'customization_data' => $customizationData,
             ]);
         }
 

@@ -60,6 +60,24 @@ Replace `DB_*` with values from **cPanel → MySQL Databases**.
 
 ---
 
+## Step 3b — Download product & category images (after seed)
+
+Requires internet on the server:
+
+```bash
+php artisan catalog:fetch-images
+```
+
+Re-download all images:
+
+```bash
+php artisan catalog:fetch-images --force
+```
+
+Uses [OMGS.in](https://omgs.in/) images for custom acrylic products and stock photos for shoes, clothes, electronics, etc.
+
+---
+
 ## Step 3 — Run commands on server (SSH or Terminal in cPanel)
 
 ```bash
@@ -69,6 +87,10 @@ composer install --no-dev --optimize-autoloader
 php artisan key:generate
 chmod -R 775 storage bootstrap/cache
 php artisan storage:link
+
+**No SSH?** Add to `.env`: `STORAGE_SETUP_TOKEN=some-long-random-string`  
+Then open once in the browser: `https://guhan.in/setup/storage-link?token=some-long-random-string`  
+You should see JSON: `"ok": true`. Change or remove the token afterward.
 php artisan migrate --force
 php artisan db:seed --force
 php artisan config:cache

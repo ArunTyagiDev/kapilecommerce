@@ -30,6 +30,15 @@
             </div>
 
             <div class="mb-3">
+                <label for="hub_route_slug" class="form-label">Customise hub URL slug</label>
+                <input type="text" class="form-control @error('hub_route_slug') is-invalid @enderror" id="hub_route_slug" name="hub_route_slug" value="{{ old('hub_route_slug', $category->hub_route_slug) }}" placeholder="e.g. acrylic-print, wall-clocks">
+                <div class="form-text">Used at <code>/customise/{slug}</code> (OMGS-style hub). Leave blank to use category slug.</div>
+                @error('hub_route_slug')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div class="mb-3">
                 <label for="description" class="form-label">Description</label>
                 <textarea class="form-control @error('description') is-invalid @enderror" id="description" name="description" rows="4">{{ old('description', $category->description) }}</textarea>
                 @error('description')

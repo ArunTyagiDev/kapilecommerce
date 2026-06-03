@@ -50,6 +50,20 @@
     </div>
 </div>
 
+<!-- Custom Photo (OMGS-style) -->
+<section class="mb-5 py-4 bg-dark text-white rounded-3">
+    <div class="row align-items-center">
+        <div class="col-md-8">
+            <h2 class="h3 mb-2">Custom Photo &amp; Décor</h2>
+            <p class="mb-0 opacity-75">Acrylic wall photos, clocks, frames, magnets &amp; more — upload your photo, pick size &amp; thickness. Prices in ₹.</p>
+        </div>
+        <div class="col-md-4 text-md-end mt-3 mt-md-0">
+            <a href="{{ route('customise.index') }}" class="btn btn-light btn-lg">Start customising</a>
+            <a href="{{ route('customise.hub', 'acrylic-wall-photo') }}" class="btn btn-outline-light ms-2">Acrylic prints</a>
+        </div>
+    </div>
+</section>
+
 <!-- Category Blocks -->
 @if($categories->count() > 0)
 <section class="mb-5">

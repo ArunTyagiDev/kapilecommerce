@@ -13,6 +13,7 @@ class Category extends Model
     protected $fillable = [
         'name',
         'slug',
+        'hub_route_slug',
         'description',
         'image',
         'parent_id',

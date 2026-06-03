@@ -34,6 +34,7 @@ class CategoryController extends Controller
             'image' => 'nullable|image|max:2048',
             'parent_id' => 'nullable|exists:categories,id',
             'sort_order' => 'nullable|integer',
+            'hub_route_slug' => 'nullable|string|max:100',
             'is_active' => 'boolean',
         ]);
 
@@ -69,6 +70,7 @@ class CategoryController extends Controller
             'image' => 'nullable|image|max:2048',
             'parent_id' => 'nullable|exists:categories,id',
             'sort_order' => 'nullable|integer',
+            'hub_route_slug' => 'nullable|string|max:100',
             'is_active' => 'boolean',
         ]);
 

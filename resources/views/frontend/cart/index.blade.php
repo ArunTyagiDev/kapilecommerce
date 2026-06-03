@@ -23,11 +23,27 @@
             <tr>
                 <td>
                     <div class="d-flex align-items-center">
-                        @if($item->product->primaryImage)
+                        @if($item->custom_image_path)
+                            <img src="{{ asset('storage/' . $item->custom_image_path) }}" alt="Your photo" style="width: 80px; height: 80px; object-fit: cover; margin-right: 10px; border: 2px solid #0d6efd;">
+                        @elseif($item->product->primaryImage)
                             <img src="{{ asset('storage/' . $item->product->primaryImage->image_path) }}" alt="{{ $item->product->name }}" style="width: 80px; height: 80px; object-fit: cover; margin-right: 10px;">
                         @endif
                         <div>
                             <strong>{{ $item->product->name }}</strong><br>
+                            @if($item->customization_data)
+                                @if(($item->customization_data['type'] ?? '') === 'text_sticker')
+                                <small class="text-primary">
+                                    {{ $item->customization_data['student_name'] ?? '' }}
+                                    @if(!empty($item->customization_data['student_class'])) · Class {{ $item->customization_data['student_class'] }} @endif
+                                    @if(!empty($item->customization_data['school_name'])) · {{ $item->customization_data['school_name'] }} @endif
+                                </small><br>
+                                @else
+                                <small class="text-primary">Custom print
+                                    @if(!empty($item->customization_data['size_label'])) · {{ $item->customization_data['size_label'] }} @endif
+                                    @if(!empty($item->customization_data['thickness_label'])) · {{ $item->customization_data['thickness_label'] }} @endif
+                                </small><br>
+                                @endif
+                            @endif
                             <small class="text-muted">{{ $item->product->sku }}</small>
                         </div>
                     </div>

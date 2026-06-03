@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Frontend\ProductController as FrontendProductController;
 use App\Http\Controllers\Frontend\CartController;
@@ -14,8 +16,15 @@ use App\Http\Controllers\Frontend\CartController;
 Route::get('/', [App\Http\Controllers\Frontend\HomeController::class, 'index'])->name('home');
 
 Route::get('/products', [FrontendProductController::class, 'index'])->name('products.index');
+Route::get('/products/load', [FrontendProductController::class, 'load'])->name('products.load');
+Route::get('/products/filters', [FrontendProductController::class, 'filters'])->name('products.filters');
 Route::get('/products/{slug}', [FrontendProductController::class, 'show'])->name('products.show');
 Route::post('/products/variant', [FrontendProductController::class, 'getVariant'])->name('products.variant');
+
+// Custom photo products (OMGS-style)
+Route::get('/customise', [App\Http\Controllers\Frontend\CustomiseController::class, 'index'])->name('customise.index');
+Route::get('/customise/{categorySlug}', [App\Http\Controllers\Frontend\CustomiseController::class, 'show'])->name('customise.hub');
+Route::get('/custom/{slug}', [App\Http\Controllers\Frontend\CustomProductController::class, 'show'])->name('custom.product');
 
 // Cart Routes
 Route::prefix('cart')->name('cart.')->group(function () {
@@ -89,5 +98,83 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::get('/payments/export', [App\Http\Controllers\Admin\PaymentController::class, 'export'])->name('payments.export');
 });
 
-require __DIR__.'/auth.php';
+/*
+| Shared hosting: create public/storage → storage/app/public without SSH.
+| Set STORAGE_SETUP_TOKEN in .env, then visit once:
+| https://your-domain.com/setup/storage-link?token=YOUR_SECRET
+| Remove or change the token after success.
+*/
+Route::get('/setup/storage-link', function (Request $request) {
+    $expected = env('STORAGE_SETUP_TOKEN');
+    if (empty($expected)) {
+        abort(503, 'Add STORAGE_SETUP_TOKEN=your-secret to .env on the server first.');
+    }
 
+    $token = (string) $request->query('token', '');
+    if ($token === '' || ! hash_equals($expected, $token)) {
+        abort(403, 'Invalid or missing token.');
+    }
+
+    $link = public_path('storage');
+    $target = storage_path('app/public');
+
+    if (! is_dir($target)) {
+        mkdir($target, 0755, true);
+    }
+
+    if (is_link($link)) {
+        return response()->json([
+            'ok' => true,
+            'message' => 'Storage symlink already exists.',
+            'link' => $link,
+            'target' => readlink($link),
+        ]);
+    }
+
+    if (file_exists($link)) {
+        return response()->json([
+            'ok' => false,
+            'message' => 'public/storage exists but is not a symlink. Remove it in File Manager, then run this URL again.',
+            'path' => $link,
+        ], 409);
+    }
+
+    try {
+        Artisan::call('storage:link');
+        $output = trim(Artisan::output());
+
+        return response()->json([
+            'ok' => true,
+            'message' => 'Storage symlink created.',
+            'output' => $output,
+            'link' => $link,
+            'target' => $target,
+        ]);
+    } catch (\Throwable $e) {
+        $relativeTarget = '../storage/app/public';
+        if (@symlink($relativeTarget, $link)) {
+            return response()->json([
+                'ok' => true,
+                'message' => 'Storage symlink created (relative path).',
+                'link' => $link,
+                'target' => $relativeTarget,
+            ]);
+        }
+
+        if (@symlink($target, $link)) {
+            return response()->json([
+                'ok' => true,
+                'message' => 'Storage symlink created (absolute path).',
+                'link' => $link,
+                'target' => $target,
+            ]);
+        }
+
+        return response()->json([
+            'ok' => false,
+            'message' => $e->getMessage(),
+        ], 500);
+    }
+})->name('setup.storage-link');
+
+require __DIR__.'/auth.php';

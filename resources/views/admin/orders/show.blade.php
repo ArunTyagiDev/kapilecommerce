@@ -55,10 +55,15 @@
                             @foreach($order->items as $item)
                             <tr>
                                 <td>
-                                    @if($item->product->primaryImage)
+                                    @if($item->custom_image_path)
+                                        <img src="{{ asset('storage/' . $item->custom_image_path) }}" alt="Custom" style="width: 50px; height: 50px; object-fit: cover; margin-right: 10px; border:1px solid #0d6efd">
+                                    @elseif($item->product->primaryImage)
                                         <img src="{{ asset('storage/' . $item->product->primaryImage->image_path) }}" alt="{{ $item->product_name }}" style="width: 50px; height: 50px; object-fit: cover; margin-right: 10px;">
                                     @endif
                                     {{ $item->product_name }}
+                                    @if($item->custom_image_path)
+                                        <br><a href="{{ asset('storage/'.$item->custom_image_path) }}" target="_blank" class="small">Customer photo</a>
+                                    @endif
                                 </td>
                                 <td>
                                     @if($item->variant_details)

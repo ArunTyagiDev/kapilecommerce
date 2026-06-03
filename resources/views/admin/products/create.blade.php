@@ -167,6 +167,31 @@
                             <label class="form-check-label" for="is_featured">Featured</label>
                         </div>
                     </div>
+
+                    <div class="mb-3 border-top pt-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="is_customizable" name="is_customizable" value="1" {{ old('is_customizable') ? 'checked' : '' }}>
+                            <label class="form-check-label" for="is_customizable"><strong>Customisable product</strong></label>
+                        </div>
+                        <select class="form-select form-select-sm mt-2" name="customization_type">
+                            <option value="photo" {{ old('customization_type', 'photo') === 'photo' ? 'selected' : '' }}>Photo upload</option>
+                            <option value="text_sticker" {{ old('customization_type') === 'text_sticker' ? 'selected' : '' }}>School name sticker (text)</option>
+                        </select>
+                        <input type="text" class="form-control form-control-sm mt-2" name="shape_label" placeholder="Shape: Portrait, Landscape, Circle…" value="{{ old('shape_label') }}">
+                        <select class="form-select form-select-sm mt-2" name="style_filter">
+                            <option value="">Style filter (hub pills)</option>
+                            @foreach(\App\Services\OmgsCatalogService::STYLE_FILTERS as $key => $label)
+                                @if($key !== 'all')
+                                <option value="{{ $key }}" {{ old('style_filter') === $key ? 'selected' : '' }}>{{ $label }}</option>
+                                @endif
+                            @endforeach
+                        </select>
+                        <input type="url" class="form-control form-control-sm mt-2" name="omgs_source_url" placeholder="OMGS source URL (optional)" value="{{ old('omgs_source_url') }}">
+                        <div class="form-check mt-2">
+                            <input class="form-check-input" type="checkbox" id="allows_cod" name="allows_cod" value="1" checked>
+                            <label class="form-check-label" for="allows_cod">Allow Cash on Delivery</label>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

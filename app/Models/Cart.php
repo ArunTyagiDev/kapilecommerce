@@ -16,10 +16,13 @@ class Cart extends Model
         'variant_id',
         'quantity',
         'price',
+        'custom_image_path',
+        'customization_data',
     ];
 
     protected $casts = [
         'price' => 'decimal:2',
+        'customization_data' => 'array',
     ];
 
     public function product()

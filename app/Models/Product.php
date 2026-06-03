@@ -31,6 +31,14 @@ class Product extends Model
         'meta_keywords',
         'is_active',
         'is_featured',
+        'is_customizable',
+        'customization_type',
+        'shape_label',
+        'style_filter',
+        'omgs_source_url',
+        'allows_cod',
+        'processing_days_min',
+        'processing_days_max',
         'sort_order',
     ];
 
@@ -41,7 +49,14 @@ class Product extends Model
         'in_stock' => 'boolean',
         'is_active' => 'boolean',
         'is_featured' => 'boolean',
+        'is_customizable' => 'boolean',
+        'allows_cod' => 'boolean',
     ];
+
+    public function scopeCustomizable($query)
+    {
+        return $query->where('is_customizable', true);
+    }
 
     protected static function boot()
     {

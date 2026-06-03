@@ -16,6 +16,8 @@ class OrderItem extends Model
         'variant_id',
         'product_name',
         'variant_details',
+        'custom_image_path',
+        'customization_data',
         'quantity',
         'price',
         'subtotal',
@@ -25,6 +27,7 @@ class OrderItem extends Model
         'price' => 'decimal:2',
         'subtotal' => 'decimal:2',
         'variant_details' => 'array',
+        'customization_data' => 'array',
     ];
 
     public function order()

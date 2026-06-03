@@ -120,6 +120,8 @@ class CheckoutController extends Controller
                     'variant_id' => $cartItem->variant_id,
                     'product_name' => $cartItem->product->name,
                     'variant_details' => $variantDetails,
+                    'custom_image_path' => $cartItem->custom_image_path,
+                    'customization_data' => $cartItem->customization_data,
                     'quantity' => $cartItem->quantity,
                     'price' => $cartItem->price,
                     'subtotal' => $cartItem->subtotal,
